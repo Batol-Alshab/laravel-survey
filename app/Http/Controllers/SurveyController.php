@@ -24,7 +24,7 @@ class SurveyController extends Controller
      */
     public function store(StoreSurveyRequest $request)
     {
-        $result = Survey::create($request->validate());
+        $result = Survey::create($request->validated());
         return new SurveyResource($result);
     }
 
@@ -34,7 +34,7 @@ class SurveyController extends Controller
     public function show(Survey $survey, Request $request)
     {
         $user = $request->user();
-        if ($user->id !== $survey->id)
+        if ($user->id !== $survey->user_id)
         {
             return abort(403, 'Unauthorization action.');
         }
@@ -46,7 +46,7 @@ class SurveyController extends Controller
      */
     public function update(UpdateSurveyRequest $request, Survey $survey)
     {
-        $survey->update($request->validate());
+        $survey->update($request->validated());
         return new SurveyResource($survey);
     }
 
@@ -56,7 +56,7 @@ class SurveyController extends Controller
     public function destroy(Survey $survey, Request $request)
     {
         $user = $request->user();
-        if($user->id !== $survey->id)
+        if($user->id !== $survey->user_id)
         {
             return abort(403,'Unauthorization action.');
         }

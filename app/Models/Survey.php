@@ -10,6 +10,7 @@ use Spatie\Sluggable\SlugOptions;
 class Survey extends Model
 {
     use HasFactory , HasSlug ;
+
     protected $fillable=[
         'user_id',
         'title',
@@ -21,7 +22,7 @@ class Survey extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugFrom('title')
+            ->generateSlugsFrom('title')
             ->saveSlugsTo('slug');
     }
 }
