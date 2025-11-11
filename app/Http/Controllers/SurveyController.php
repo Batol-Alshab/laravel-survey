@@ -63,7 +63,9 @@ class SurveyController extends Controller
             // حذف الصورة القديمة إن وجدت
             if ($survey->image) {
                 $absolutePath = public_path($survey->image);
-                File::delete($absolutePath);
+                if (File::exists($absolutePath)) {
+                    File::delete($absolutePath);
+                }
             }
         }
 
@@ -82,6 +84,14 @@ class SurveyController extends Controller
             return abort(403, 'Unauthorization action.');
         }
         $survey->delete();
+
+        if ($survey->image) {
+            $absolutePath = public_path($survey->image);
+
+            if (File::exists($absolutePath)) {
+                File::delete($absolutePath);
+            }
+        }
         return response('', 204);
     }
 
