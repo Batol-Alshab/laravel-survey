@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Survey;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\File;
 use App\Http\Resources\SurveyResource;
 use App\Http\Requests\StoreSurveyRequest;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\UpdateSurveyRequest;
+use App\Models\SurveyQuestion;
 
 class SurveyController extends Controller
 {
@@ -33,8 +36,14 @@ class SurveyController extends Controller
             $relativePath = $this->saveImage($data['image']);
             $data['image'] = $relativePath;
         }
-        $result = Survey::create($data);
-        return new SurveyResource($result);
+        $survey = Survey::create($data);
+
+        // create new questions
+        foreach ($data['questions'] as $question) {
+            $question['survey_id'] = $survey->id;
+            $this->createQuestion($question);
+        }
+        return new SurveyResource($survey);
     }
 
     /**
@@ -128,5 +137,24 @@ class SurveyController extends Controller
         }
         file_put_contents($relativePath, $image);
         return $relativePath;
+    }
+
+    private function createQuestion($data){
+        $data['data'] = json_encode($data['data']);
+        $validator = Validator::make($data,[
+            'question' => 'required|string',
+            'type'=>['required', Rule::in([
+                Survey::TYPE_TEXT,
+                Survey::TYPE_TEXTAREA,
+                Survey::TYPE_SELECT,
+                Survey::TYPE_RADIO,
+                Survey::TYPE_CHECKBOX,
+            ])],
+            'description'=>'nullable|string',
+            'data'=>'present',
+            'survey_id'=>'exists:surveys,id',
+        ]);
+        return SurveyQuestion::create($validator->validated());
+
     }
 }
