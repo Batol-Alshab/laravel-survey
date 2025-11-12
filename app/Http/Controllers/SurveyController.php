@@ -207,4 +207,12 @@ class SurveyController extends Controller
         return $question->update($validator->validated());
 
     }
+
+    public function showForGuest(Survey $survey)
+    // public function showForGuest()
+    {
+        // return 1;
+        return new SurveyResource($survey);
+
+    }
 }
