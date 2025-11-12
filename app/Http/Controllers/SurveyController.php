@@ -22,7 +22,7 @@ class SurveyController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        return SurveyResource::collection(Survey::where('user_id', $user->id)->paginate());
+        return SurveyResource::collection(Survey::where('user_id', $user->id)->paginate(5));
     }
 
     /**
@@ -95,7 +95,7 @@ class SurveyController extends Controller
         foreach ($data['questions'] as $question)
         {
             if(in_array($question['id'], $toAdd)){
-                $question['syrvey_id']= $survey->id;
+                $question['survey_id']= $survey->id;
                 $this->createQuestion($question);
 
             }
