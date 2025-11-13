@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SurveyAnswer;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Survey extends Model
 {
@@ -35,5 +36,9 @@ class Survey extends Model
 
     public function questions(){
         return $this->hasMany(SurveyQuestion::class);
+    }
+
+    public function answers(){
+        return $this->hasMany(SurveyAnswer::class);
     }
 }

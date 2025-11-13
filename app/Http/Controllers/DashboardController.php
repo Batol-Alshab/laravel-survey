@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Resources\SurveyAnswerResource;
+use App\Models\Survey;
+use App\Models\SurveyAnswer;
+use Illuminate\Http\Request;
+use App\Http\Resources\SurveyResource;
+
+class DashboardController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        // total number of surveys
+        $total = Survey::query()
+            ->where('user_id', $user->id)
+            ->count();
+
+        // latest survey
+        $latest = Survey::query()
+            ->where('user_id', $user->id)
+            ->latest('created_at')
+            ->first();
+
+        // total number of answers
+
+        $totalAnswers = SurveyAnswer::query()
+            ->join('surveys', 'survey_answers.survey_id', '=', 'surveys.id')
+            ->where('surveys.user_id', $user->id)
+            ->orderBy('end_date', 'DESC')
+            ->count();
+
+        // latest 5 answer
+        $latestAnswers = SurveyAnswer::query()
+            ->join('surveys', 'survey_answers.survey_id', '=', 'surveys.id')
+            ->where('surveys.user_id', $user->id)
+            ->orderBy('end_date', 'DESC')
+            ->limit(5)
+            // ->getModels('survey_answers.*');
+            ->get(['survey_answers.*']);
+
+        // SurveyAnswer::whereHas('survey', function ($query) use ($user) {
+        //     $query->where('user_id', $user->id);
+        // })
+        //     ->orderBy('end_date', 'DESC')
+        //     ->limit(5)
+        //     ->get();
+
+
+        return [
+            'totalSurveys' => $total,
+            'latestSurvey' => $latest ? new SurveyResource($latest) : null,
+            'totalAnswers' => $totalAnswers,
+            'latestAnswers' => SurveyAnswerResource::collection($latestAnswers),
+        ];
+    }
+}
